@@ -6,6 +6,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.hmdp.config.CacheClient;
 import com.hmdp.constant.RedisConstants;
 import com.hmdp.model.dto.RedisData;
 import com.hmdp.model.dto.Result;
@@ -33,16 +34,29 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements IS
     @Resource
     private ExecutorService executorService;
 
+    @Resource
+    private CacheClient cacheClient;
+
     @Override
     public Result getShopById(Long id) throws InterruptedException {
         Shop shop = null;
         // Null 解决缓存穿透
 //        shop = getShopWithNull(id);
+        shop = cacheClient.getByCacheNull(
+                RedisConstants.CACHE_SHOP_KEY, id, Shop.class,
+                this::getById, RedisConstants.CACHE_SHOP_TTL, TimeUnit.MINUTES);
+
         // 互斥锁 解决缓存击穿
 //        shop = getShopWithLock(id);
+        shop = cacheClient.getByMutex(
+                RedisConstants.CACHE_SHOP_KEY, id, Shop.class,
+                this::getById, RedisConstants.CACHE_SHOP_TTL, TimeUnit.MINUTES);
 
         // 逻辑过期时间 解决缓存击穿
-        shop = getShopWithLogicalExpireTime(id);
+//        shop = getShopWithLogicalExpireTime(id);
+        shop = cacheClient.getByLogicalExpireTime(
+                RedisConstants.CACHE_SHOP_KEY, id, Shop.class,
+                this::getById, 20L, TimeUnit.SECONDS);
 
         if(ObjectUtil.isNull(shop)) {
             return Result.fail("店铺不存在");
