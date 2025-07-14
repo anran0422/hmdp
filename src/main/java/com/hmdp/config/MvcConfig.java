@@ -20,7 +20,7 @@ public class MvcConfig implements WebMvcConfigurer {
         registry.addInterceptor(new RefreshTokenInterceptor(stringRedisTemplate))
                         .addPathPatterns("/**").order(0);
 
-        registry.addInterceptor(new LoginInterceptor(stringRedisTemplate))
+        registry.addInterceptor(new LoginInterceptor())
                 .excludePathPatterns(
                         "/shop/**",
                         "/voucher/**",

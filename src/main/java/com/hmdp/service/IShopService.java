@@ -14,7 +14,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface IShopService extends IService<Shop> {
 
-    Result getShopById(Long id);
+    Result getShopById(Long id) throws InterruptedException;
 
     Result updateShopById(Shop shop);
 }
