@@ -11,7 +11,6 @@ public class RedisConstants {
     public static final Long LOGIN_USER_TTL = 30L;
 
 
-
     /**
      * 店铺缓存
      */
