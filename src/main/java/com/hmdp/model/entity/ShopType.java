@@ -1,8 +1,9 @@
-package com.hmdp.entity;
+package com.hmdp.model.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -21,8 +22,8 @@ import java.time.LocalDateTime;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("tb_blog_comments")
-public class BlogComments implements Serializable {
+@TableName("tb_shop_type")
+public class ShopType implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -33,48 +34,30 @@ public class BlogComments implements Serializable {
     private Long id;
 
     /**
-     * 用户id
+     * 类型名称
      */
-    private Long userId;
+    private String name;
 
     /**
-     * 探店id
+     * 图标
      */
-    private Long blogId;
+    private String icon;
 
     /**
-     * 关联的1级评论id，如果是一级评论，则值为0
+     * 顺序
      */
-    private Long parentId;
-
-    /**
-     * 回复的评论id
-     */
-    private Long answerId;
-
-    /**
-     * 回复的内容
-     */
-    private String content;
-
-    /**
-     * 点赞数
-     */
-    private Integer liked;
-
-    /**
-     * 状态，0：正常，1：被举报，2：禁止查看
-     */
-    private Boolean status;
+    private Integer sort;
 
     /**
      * 创建时间
      */
+    @JsonIgnore
     private LocalDateTime createTime;
 
     /**
      * 更新时间
      */
+    @JsonIgnore
     private LocalDateTime updateTime;
 
 

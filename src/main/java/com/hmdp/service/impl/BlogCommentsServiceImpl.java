@@ -1,6 +1,6 @@
 package com.hmdp.service.impl;
 
-import com.hmdp.entity.BlogComments;
+import com.hmdp.model.entity.BlogComments;
 import com.hmdp.mapper.BlogCommentsMapper;
 import com.hmdp.service.IBlogCommentsService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;

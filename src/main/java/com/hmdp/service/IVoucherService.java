@@ -1,7 +1,7 @@
 package com.hmdp.service;
 
-import com.hmdp.dto.Result;
-import com.hmdp.entity.Voucher;
+import com.hmdp.model.dto.Result;
+import com.hmdp.model.entity.Voucher;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**

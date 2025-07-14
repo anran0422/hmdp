@@ -1,6 +1,6 @@
 package com.hmdp.service;
 
-import com.hmdp.entity.Follow;
+import com.hmdp.model.entity.Follow;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**

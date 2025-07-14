@@ -1,4 +1,4 @@
-package com.hmdp.entity;
+package com.hmdp.model.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -12,50 +12,45 @@ import java.time.LocalDateTime;
 
 /**
  * <p>
- * 
+ * 秒杀优惠券表，与优惠券是一对一关系
  * </p>
  *
  * @author 虎哥
- * @since 2021-12-22
+ * @since 2022-01-04
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("tb_user")
-public class User implements Serializable {
+@TableName("tb_seckill_voucher")
+public class SeckillVoucher implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     /**
-     * 主键
+     * 关联的优惠券的id
      */
-    @TableId(value = "id", type = IdType.AUTO)
-    private Long id;
+    @TableId(value = "voucher_id", type = IdType.INPUT)
+    private Long voucherId;
 
     /**
-     * 手机号码
+     * 库存
      */
-    private String phone;
-
-    /**
-     * 密码，加密存储
-     */
-    private String password;
-
-    /**
-     * 昵称，默认是随机字符
-     */
-    private String nickName;
-
-    /**
-     * 用户头像
-     */
-    private String icon = "";
+    private Integer stock;
 
     /**
      * 创建时间
      */
     private LocalDateTime createTime;
+
+    /**
+     * 生效时间
+     */
+    private LocalDateTime beginTime;
+
+    /**
+     * 失效时间
+     */
+    private LocalDateTime endTime;
 
     /**
      * 更新时间
