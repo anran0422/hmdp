@@ -9,7 +9,9 @@ import com.hmdp.service.IVoucherOrderService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.hmdp.utils.RedisIdWorker;
 import com.hmdp.utils.UserHolder;
+import org.springframework.aop.framework.AopContext;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
@@ -52,9 +54,18 @@ public class VoucherOrderServiceImpl extends ServiceImpl<VoucherOrderMapper, Vou
         if(stock < 1) {
             return Result.fail("秒杀券库存不足！");
         }
-
-        // 4. 一人一单
         Long userId = UserHolder.getUser().getId();
+        synchronized (userId.toString().intern()) {
+            // 获取代理对象
+            IVoucherOrderService proxy = (IVoucherOrderService) AopContext.currentProxy();
+            return proxy.handleOneOrder(voucherId);
+        }
+    }
+
+    @Transactional
+    public Result handleOneOrder(Long voucherId) {
+        Long userId = UserHolder.getUser().getId();
+        // 4. 一人一单
         Integer count = this.query()
                 .eq("user_id", userId)
                 .eq("voucher_id", voucherId)
