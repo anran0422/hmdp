@@ -109,7 +109,7 @@ public class CacheClient {
             return null;
         }
         // 4. 命中 把 Json 反序列化为对象
-        com.hmdp.model.dto.RedisData redisData = JSONUtil.toBean(json, com.hmdp.model.dto.RedisData.class);
+        RedisData redisData = JSONUtil.toBean(json, RedisData.class);
         JSONObject data = (JSONObject) redisData.getData();
         R r = JSONUtil.toBean(data, classType);
         LocalDateTime logicalExpireTime = redisData.getLogicalExpireTime();
@@ -128,7 +128,7 @@ public class CacheClient {
             // 6.3 成功
             // 优化：获取锁成功再见检测 Redis 缓存是否过期，DoubleCheck；存在无需构建缓存
             json = stringRedisTemplate.opsForValue().get(key);
-            redisData = JSONUtil.toBean(json, com.hmdp.model.dto.RedisData.class);
+            redisData = JSONUtil.toBean(json, RedisData.class);
             data = (JSONObject) redisData.getData();
             logicalExpireTime = redisData.getLogicalExpireTime();
             if(logicalExpireTime.isAfter(LocalDateTime.now())) {
