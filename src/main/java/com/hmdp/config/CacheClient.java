@@ -6,7 +6,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.hmdp.constant.RedisConstants;
-import com.hmdp.utils.RedisData;
+import com.hmdp.model.dto.RedisData;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
@@ -48,7 +48,7 @@ public class CacheClient {
         // 设置逻辑过期时间
         RedisData redisData = new RedisData();
         redisData.setData(value);
-        redisData.setExpireTime(LocalDateTime.now().plusSeconds(unit.toSeconds(time)));
+        redisData.setLogicalExpireTime(LocalDateTime.now().plusSeconds(unit.toSeconds(time)));
         // 写入 Redis
         stringRedisTemplate.opsForValue().set(key, JSONUtil.toJsonStr(redisData));
     }
