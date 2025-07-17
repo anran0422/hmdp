@@ -53,10 +53,10 @@ public class VoucherOrderServiceImpl extends ServiceImpl<VoucherOrderMapper, Vou
             return Result.fail("秒杀券库存不足！");
         }
         // 4. 充足，扣减库存
-        boolean res = seckillVoucherService
-                .update()
+        boolean res = seckillVoucherService.update()
                 .setSql("stock = stock - 1")
-                .eq("voucher_id", voucherId).update();
+                .eq("voucher_id", voucherId).gt("stock", 0)
+                .update();
         if(!res) {
             Result.fail("更新库存失败！");
         }
