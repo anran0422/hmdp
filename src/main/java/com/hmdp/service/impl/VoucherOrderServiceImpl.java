@@ -52,7 +52,18 @@ public class VoucherOrderServiceImpl extends ServiceImpl<VoucherOrderMapper, Vou
         if(stock < 1) {
             return Result.fail("秒杀券库存不足！");
         }
-        // 4. 充足，扣减库存
+
+        // 4. 一人一单
+        Long userId = UserHolder.getUser().getId();
+        Integer count = this.query()
+                .eq("user_id", userId)
+                .eq("voucher_id", voucherId)
+                .count();
+        if(count > 0) {
+            return Result.fail("秒杀优惠券一人只能购买一张，不可以贪心~");
+        }
+
+        // 5. 充足，扣减库存
         boolean res = seckillVoucherService.update()
                 .setSql("stock = stock - 1")
                 .eq("voucher_id", voucherId).gt("stock", 0)
@@ -60,17 +71,18 @@ public class VoucherOrderServiceImpl extends ServiceImpl<VoucherOrderMapper, Vou
         if(!res) {
             Result.fail("更新库存失败！");
         }
-        // 5. 创建订单（优惠订单 voucher_order）
+        // 6. 创建订单（优惠订单 voucher_order）
         VoucherOrder voucherOrder = new VoucherOrder();
         // a. 订单 id
         voucherOrder.setId(redisIdWorker.nextId("order"));
         // b. 用户 id
-        voucherOrder.setUserId(UserHolder.getUser().getId());
+        voucherOrder.setUserId(userId);
         // c. 代金券的 id
         voucherOrder.setVoucherId(voucherId);
-        // 6. 保存订单
+
+        // 7. 保存订单
         this.save(voucherOrder);
-        // 7. 返回订单 ID
+        // 8. 返回订单 ID
         return Result.ok(voucherOrder.getId());
     }
 }
