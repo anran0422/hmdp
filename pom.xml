@@ -66,6 +66,12 @@
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjweaver</artifactId>
         </dependency>
+        <!-- Lua 脚本-->
+        <dependency>
+            <groupId>org.luaj</groupId>
+            <artifactId>luaj-jse</artifactId>
+            <version>3.0.1</version>
+        </dependency>
     </dependencies>
 
     <build>
