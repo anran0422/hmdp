@@ -3,6 +3,10 @@ server:
 spring:
   application:
     name: hmdp
+  servlet:
+    multipart:
+      max-file-size: 20MB
+
   datasource:
     driver-class-name: com.mysql.jdbc.Driver
     url: jdbc:mysql://127.0.0.1:3306/hmdp?useSSL=false&serverTimezone=UTC
@@ -23,6 +27,7 @@ spring:
     connect-timeout: 5000
   jackson:
     default-property-inclusion: non_null # JSON处理时忽略非空字段
+
 mybatis-plus:
   type-aliases-package: com.hmdp.entity # 别名扫描包
 logging:
