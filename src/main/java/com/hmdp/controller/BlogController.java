@@ -53,14 +53,27 @@ public class BlogController {
         return Result.ok(records);
     }
 
+    /**
+     * 查询热帖
+     */
     @GetMapping("/hot")
     public Result queryHotBlog(@RequestParam(value = "current", defaultValue = "1") Integer current) {
         return blogService.queryHotBlog(current);
     }
 
+    /**
+     * 查询单个帖子，帖子详情
+     */
     @GetMapping("/{id}")
     public Result getBlogById(@PathVariable(value = "id") Long id) {
         return blogService.getBlogById(id);
     }
 
+    /**
+     * 获取帖子点赞 TopN
+     */
+    @GetMapping("/likes/{id}")
+    public Result getLikeTopN(@PathVariable(value = "id") Long id) {
+        return blogService.getLikeTopN(id);
+    }
 }
