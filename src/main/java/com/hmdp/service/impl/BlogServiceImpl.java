@@ -2,6 +2,7 @@ package com.hmdp.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.extension.conditions.query.QueryChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.hmdp.constant.RedisConstants;
 import com.hmdp.constant.SystemConstants;
@@ -9,9 +10,11 @@ import com.hmdp.model.dto.Result;
 import com.hmdp.model.dto.UserDTO;
 import com.hmdp.model.entity.Blog;
 import com.hmdp.mapper.BlogMapper;
+import com.hmdp.model.entity.Follow;
 import com.hmdp.model.entity.User;
 import com.hmdp.service.IBlogService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.hmdp.service.IFollowService;
 import com.hmdp.service.IUserService;
 import com.hmdp.utils.UserHolder;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -33,6 +36,9 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements IB
 
     @Resource
     private StringRedisTemplate stringRedisTemplate;
+
+    @Resource
+    private IFollowService followService;
 
     @Override
     public Result getBlogById(Long id) {
@@ -119,6 +125,36 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements IB
                 .map(user -> BeanUtil.copyProperties(user, UserDTO.class))
                 .collect(Collectors.toList());
         return Result.ok(userDTOList);
+    }
+
+    /**
+     * 发布 Blog
+     * 推送给粉丝
+     */
+    @Override
+    public Result saveBlog(Blog blog) {
+        // 1. 获取当前登录用户（发布的肯定是当前用户）
+        Long userId = UserHolder.getUser().getId();
+        // 2. 发布 Blog（保存到数据库）
+        blog.setUserId(userId);
+        boolean save = this.save(blog);
+
+        if(!save) {
+            return Result.fail("发送Blog失败，请重试");
+        }
+        // 3. 查询关注当前的所有用户
+        List<Follow> followList = followService.query()
+                .eq("follow_user_id", userId).list();
+        // 4. 建立收件箱，推送 BlogId 给粉丝
+        for (Follow follow : followList) {
+            // 获取粉丝 Id
+            Long fanId = follow.getUserId();
+            // 推送 BlogId
+            stringRedisTemplate.opsForZSet().add(RedisConstants.FEED_KEY + fanId,
+                    blog.getId().toString(), System.currentTimeMillis());
+        }
+        // 5. 返回 BlogId
+        return Result.ok(blog.getId());
     }
 
     /**

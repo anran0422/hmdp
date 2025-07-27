@@ -16,4 +16,6 @@ public interface IBlogService extends IService<Blog> {
      * 获取帖子点赞 TopN
      */
     Result getLikeTopN(Long id);
+
+    Result saveBlog(Blog blog);
 }
