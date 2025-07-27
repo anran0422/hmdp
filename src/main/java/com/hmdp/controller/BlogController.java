@@ -86,4 +86,13 @@ public class BlogController {
 
         return Result.ok(page.getRecords());
     }
+
+    /**
+     * 被关注的人 Blog 查询
+     */
+    @GetMapping("/of/follow")
+    public Result getBlogOfFollow(@RequestParam(value = "lastId") Long minTime,
+            @RequestParam(value = "offset", defaultValue = "0") Integer offset) {
+        return blogService.getBlogOfFollow(minTime, offset);
+    }
 }

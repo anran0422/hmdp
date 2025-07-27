@@ -2,11 +2,11 @@ package com.hmdp.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
-import com.baomidou.mybatisplus.extension.conditions.query.QueryChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.hmdp.constant.RedisConstants;
 import com.hmdp.constant.SystemConstants;
 import com.hmdp.model.dto.Result;
+import com.hmdp.model.dto.ScrollResult;
 import com.hmdp.model.dto.UserDTO;
 import com.hmdp.model.entity.Blog;
 import com.hmdp.mapper.BlogMapper;
@@ -18,14 +18,15 @@ import com.hmdp.service.IFollowService;
 import com.hmdp.service.IUserService;
 import com.hmdp.utils.UserHolder;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 
 @Service
@@ -158,7 +159,54 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements IB
     }
 
     /**
-     * 点赞信息查询
+     * 被关注的人 Blog 查询
+     */
+    @Override
+    public Result getBlogOfFollow(Long minTime, Integer offset) {
+        // 1. 获取当前用户
+        Long userId = UserHolder.getUser().getId();
+        // 2. 拿到收件箱的 key
+        String key = RedisConstants.FEED_KEY + userId;
+            //a. 查询收件箱，执行指令 ZREVRANGEBYSCORE z1 6 0 WITHSCORES LIMIT 1 3
+        Set<ZSetOperations.TypedTuple<String>> typedTuples = stringRedisTemplate.opsForZSet()
+                .reverseRangeByScoreWithScores(key, 0, minTime, offset, 3);
+            //b. 非空判断
+        if(typedTuples == null || typedTuples.isEmpty()) {
+            return Result.ok(Collections.emptyList());
+        }
+        // 3. 解析数据：blogId score(时间戳 minTime) offset
+        List<Long> blogIdList = new ArrayList<>(typedTuples.size());
+        long minTimeValue = 0;
+        int cntMinTime = 1;
+        for (ZSetOperations.TypedTuple<String> tuple : typedTuples) {
+            blogIdList.add(Long.valueOf(tuple.getValue()));
+            if(tuple.getScore().longValue() == minTimeValue) {
+                cntMinTime++;
+            } else {
+                minTimeValue = tuple.getScore().longValue();
+                cntMinTime = 1;
+            }
+        }
+        // 4. 根据 blogId 拿到 Blog
+            // a. 要保证有序，listByIds用的是 Mysql 的IN无序，我们是Order By Field
+        String idStr = StrUtil.join(",", blogIdList);
+        List<Blog> blogList = this.query()
+                .in("id", blogIdList).last("order by field(id, " + idStr + ")").list();
+        // b. 查询博客，还要附带它的 用户信息，以及当前用户是否点赞
+        for (Blog blog : blogList) {
+            fillUserInfo(blog);
+            isLike(blog);
+        }
+        // 5. 封装并且返回
+        ScrollResult result = new ScrollResult();
+        result.setList(blogList);
+        result.setMinTime(minTimeValue);
+        result.setOffset(cntMinTime);
+        return Result.ok(result);
+    }
+
+    /**
+     * 当前用户是否点赞查询
      */
     private void isLike(Blog blog) {
         // 1. 获取登录用户

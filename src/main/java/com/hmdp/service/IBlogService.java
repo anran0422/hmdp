@@ -18,4 +18,9 @@ public interface IBlogService extends IService<Blog> {
     Result getLikeTopN(Long id);
 
     Result saveBlog(Blog blog);
+
+    /**
+     * 被关注的人 Blog 查询
+     */
+    Result getBlogOfFollow(Long minTime, Integer offset);
 }
