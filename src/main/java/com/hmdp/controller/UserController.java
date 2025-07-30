@@ -95,4 +95,12 @@ public class UserController {
         UserDTO userDTO = BeanUtil.copyProperties(user, UserDTO.class);
         return Result.ok(userDTO);
     }
+
+    /**
+     * 用户签到
+     */
+    @PostMapping("/sign")
+    public Result sign() {
+        return userService.sign();
+    }
 }

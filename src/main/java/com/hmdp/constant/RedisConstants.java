@@ -39,7 +39,18 @@ public class RedisConstants {
      */
     public static final String COMMOIN_FOLLOW_KEY = "common:follow:";
 
+    /**
+     * 关注推送
+     */
     public static final String FEED_KEY = "feed:";
+
+    /**
+     * 附近店铺
+     */
     public static final String SHOP_GEO_KEY = "shop:geo:";
+
+    /**
+     * 用户签到
+     */
     public static final String USER_SIGN_KEY = "sign:";
 }
