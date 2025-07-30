@@ -81,4 +81,19 @@ class HmDianPingApplicationTests {
         }
 
     }
+
+    @Test
+    void testHyperLogLog() {
+        String[] users = new String[1000];
+        int index = 0;
+        for (int i = 1; i <= 1000000; i++) {
+            users[index++] = "user_" + i;
+            if(i % 1000 == 0) {
+                index = 0;
+                stringRedisTemplate.opsForHyperLogLog().add("hpll", users);
+            }
+        }
+        Long count = stringRedisTemplate.opsForHyperLogLog().size("hpll");
+        System.out.println("count = " + count);
+    }
 }
